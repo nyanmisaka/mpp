@@ -115,7 +115,7 @@ static RK_U32 rkv_ver_align(RK_U32 val)
 
 static RK_U32 rkv_hor_align(RK_U32 val)
 {
-    return MPP_ALIGN(val, 16);
+    return MPP_ALIGN(val, 64); // align to 64 for av1 main 10bit
 }
 
 static RK_U32 rkv_len_align(RK_U32 val)
