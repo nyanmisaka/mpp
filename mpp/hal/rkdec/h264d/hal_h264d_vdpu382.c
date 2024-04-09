@@ -335,7 +335,7 @@ static RK_U32 rkv_ver_align(RK_U32 val)
 
 static RK_U32 rkv_hor_align(RK_U32 val)
 {
-    return MPP_ALIGN(val, 16);
+    return MPP_ALIGN(val, 64); // align to 64 for h264 high10
 }
 
 static RK_U32 rkv_hor_align_256_odds(RK_U32 val)
