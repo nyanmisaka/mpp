@@ -69,11 +69,7 @@ typedef struct {
     RK_U32  flags;
 } allocator_ctx_drm;
 
-/* use renderD128 first to avoid GKI kernel permission issue */
-static const char *dev_drm[] = {
-    "/dev/dri/renderD128",
-    "/dev/dri/card0",
-};
+static const char *dev_drm = "/dev/dri/card0";
 
 static RK_U32 to_rockchip_gem_mem_flag(RK_U32 flags)
 {
@@ -168,9 +164,8 @@ static int drm_free(int fd, RK_U32 handle)
 
 static MPP_RET os_allocator_drm_open(void **ctx, size_t alignment, MppAllocFlagType flags)
 {
-    allocator_ctx_drm *p;
     RK_S32 fd;
-    RK_S32 i;
+    allocator_ctx_drm *p;
 
     if (NULL == ctx) {
         mpp_err_f("does not accept NULL input\n");
@@ -181,17 +176,9 @@ static MPP_RET os_allocator_drm_open(void **ctx, size_t alignment, MppAllocFlagT
 
     mpp_env_get_u32("drm_debug", &drm_debug, 0);
 
-    for (i = 0; i < (RK_S32)MPP_ARRAY_ELEMS(dev_drm); i++) {
-        fd = open(dev_drm[i], O_RDWR | O_CLOEXEC);
-        if (fd > 0)
-            break;
-    }
-
+    fd = open(dev_drm, O_RDWR | O_CLOEXEC);
     if (fd < 0) {
-        mpp_err_f("open all drm device failed.\n");
-        mpp_err("Please check the following device path and access permission:\n");
-        for (i = 0; i < (RK_S32)MPP_ARRAY_ELEMS(dev_drm); i++)
-            mpp_err("%s\n", dev_drm[i]);
+        mpp_err_f("open %s failed!\n", dev_drm);
         return MPP_ERR_UNKNOW;
     }
 
