@@ -77,9 +77,9 @@ do{\
 }} while (0)
 
 
-extern const vp9_prob vp9_kf_y_mode_prob[INTRA_MODES][INTRA_MODES][INTRA_MODES - 1];
-extern const vp9_prob vp9_kf_uv_mode_prob[INTRA_MODES][INTRA_MODES - 1];
-extern const vp9_prob vp9_kf_partition_probs[PARTITION_CONTEXTS][PARTITION_TYPES - 1];
+extern const vp9_prob mpp_vp9_kf_y_mode_prob[INTRA_MODES][INTRA_MODES][INTRA_MODES - 1];
+extern const vp9_prob mpp_vp9_kf_uv_mode_prob[INTRA_MODES][INTRA_MODES - 1];
+extern const vp9_prob mpp_vp9_kf_partition_probs[PARTITION_CONTEXTS][PARTITION_TYPES - 1];
 
 #ifdef __cplusplus
 extern "C" {
