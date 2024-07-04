@@ -46,6 +46,12 @@ FILE *fp = NULL;
 #endif
 //static RK_U32 start_write = 0, value = 0;
 
+// for hevc max ctu size 64
+static RK_U32 rkv_ctu_64_align(RK_U32 val)
+{
+    return MPP_ALIGN(val, 64);
+}
+
 /**
  * Find the end of the current frame in the bitstream.
  * @return the position of the first byte of the next frame, or END_NOT_FOUND
@@ -2240,6 +2246,8 @@ MPP_RET h265d_init(void *ctx, ParserCfg *parser_cfg)
 
     s->vps_pool = mpp_mem_pool_init(sizeof(HEVCVPS));
     s->sps_pool = mpp_mem_pool_init(sizeof(HEVCSPS));
+
+    mpp_slots_set_prop(s->slots, SLOTS_WIDTH_ALIGN, rkv_ctu_64_align);
 
 #ifdef dump
     fp = fopen("/data/dump1.bin", "wb+");
