@@ -2447,6 +2447,39 @@ __BITREAD_ERR:
     return MPP_ERR_STREAM;
 }
 
+static void mpp_av1_fill_dynamic_meta(AV1Context *ctx, const RK_U8 *data, RK_U32 size, RK_U32 hdr_fmt)
+{
+    MppFrameHdrDynamicMeta *hdr_dynamic_meta = ctx->hdr_dynamic_meta;
+
+    if (hdr_dynamic_meta && (hdr_dynamic_meta->size < size)) {
+        mpp_free(hdr_dynamic_meta);
+        hdr_dynamic_meta = NULL;
+    }
+
+    if (!hdr_dynamic_meta) {
+        hdr_dynamic_meta = mpp_calloc_size(MppFrameHdrDynamicMeta,
+                                           sizeof(MppFrameHdrDynamicMeta) + size);
+        if (!hdr_dynamic_meta) {
+            mpp_err_f("malloc hdr dynamic data failed!\n");
+            return;
+        }
+    }
+    if (size && data) {
+        switch (hdr_fmt) {
+        case HDR10PLUS: {
+            memcpy((RK_U8*)hdr_dynamic_meta->data, (RK_U8*)data, size);
+        } break;
+        default: break;
+        }
+        hdr_dynamic_meta->size = size;
+        hdr_dynamic_meta->hdr_fmt = hdr_fmt;
+
+        ctx->hdr_dynamic_meta = hdr_dynamic_meta;
+        ctx->hdr_dynamic = 1;
+        ctx->is_hdr = 1;
+    }
+}
+
 static RK_S32 mpp_av1_metadata_itut_t35(AV1Context *ctx, BitReadCtx_t *gb,
                                         AV1RawMetadataITUTT35 *current)
 {
@@ -2462,18 +2495,37 @@ static RK_S32 mpp_av1_metadata_itut_t35(AV1Context *ctx, BitReadCtx_t *gb,
              __func__, current->itu_t_t35_country_code, current->payload_size);
 
     fb(16, itu_t_t35_terminal_provider_code);
-    READ_BITS_LONG(gb, 32, &current->itu_t_t35_terminal_provider_oriented_code);
 
     av1d_dbg(AV1D_DBG_STRMIN, "itu_t_t35_country_code 0x%x\n",
              current->itu_t_t35_country_code);
     av1d_dbg(AV1D_DBG_STRMIN, "itu_t_t35_terminal_provider_code 0x%x\n",
              current->itu_t_t35_terminal_provider_code);
-    av1d_dbg(AV1D_DBG_STRMIN, "itu_t_t35_terminal_provider_oriented_code 0x%x\n",
-             current->itu_t_t35_terminal_provider_oriented_code);
 
-    if (current->itu_t_t35_terminal_provider_code == 0x3B &&
-        current->itu_t_t35_terminal_provider_oriented_code == 0x800)
-        mpp_av1_get_dolby_rpu(ctx, gb);
+    switch (current->itu_t_t35_terminal_provider_code) {
+    case 0x3B: {/* dolby provider_code is 0x3b*/
+        READ_BITS_LONG(gb, 32, &current->itu_t_t35_terminal_provider_oriented_code);
+        av1d_dbg(AV1D_DBG_STRMIN, "itu_t_t35_terminal_provider_oriented_code 0x%x\n",
+                 current->itu_t_t35_terminal_provider_oriented_code);
+        if (current->itu_t_t35_terminal_provider_oriented_code == 0x800)
+            mpp_av1_get_dolby_rpu(ctx, gb);
+    } break;
+    case 0x3C: {/* smpte2094_40 provider_code is 0x3c*/
+        const RK_U16 smpte2094_40_provider_oriented_code = 0x0001;
+        const RK_U8 smpte2094_40_application_identifier = 0x04;
+        RK_U8 application_identifier;
+
+        fb(16, itu_t_t35_terminal_provider_oriented_code);
+        av1d_dbg(AV1D_DBG_STRMIN, "itu_t_t35_terminal_provider_oriented_code 0x%x\n",
+                 current->itu_t_t35_terminal_provider_oriented_code);
+        READ_BITS(gb, 8, &application_identifier);
+        /* hdr10plus priverder_oriented_code is 0x0001, application_identifier is 0x04 */
+        if (current->itu_t_t35_terminal_provider_oriented_code == smpte2094_40_provider_oriented_code &&
+            application_identifier == smpte2094_40_application_identifier)
+            mpp_av1_fill_dynamic_meta(ctx, gb->data_, mpp_get_bits_left(gb) >> 3, HDR10PLUS);
+    } break;
+    default:
+        break;
+    }
 
     return 0;
 __BITREAD_ERR:

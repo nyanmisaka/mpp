@@ -1720,13 +1720,20 @@ void mpp_hevc_fill_dynamic_meta(HEVCContext *s, const RK_U8 *data, RK_U32 size, 
         }
     }
     if (size && data) {
-        if (hdr_fmt == DOLBY) {
+        switch (hdr_fmt) {
+        case DOLBY: {
             RK_U8 start_code[4] = {0, 0, 0, 1};
 
             memcpy((RK_U8*)hdr_dynamic_meta->data, start_code, 4);
             memcpy((RK_U8*)hdr_dynamic_meta->data + 4, (RK_U8*)data, size - 4);
-        } else
+        } break;
+        case HDRVIVID:
+        case HDR10PLUS: {
             memcpy((RK_U8*)hdr_dynamic_meta->data, (RK_U8*)data, size);
+        } break;
+        default:
+            break;
+        }
         hdr_dynamic_meta->size = size;
         hdr_dynamic_meta->hdr_fmt = hdr_fmt;
     }
