@@ -182,6 +182,11 @@ static MPP_RET os_allocator_drm_open(void **ctx, size_t alignment, MppAllocFlagT
         return MPP_ERR_UNKNOW;
     }
 
+    int ret = drm_ioctl(fd, DRM_IOCTL_DROP_MASTER, 0);
+    if (ret < 0) {
+        mpp_err_f("Drop master on %s failed!\n", dev_drm);
+    }
+
     drm_dbg_dev("open drm dev fd %d flags %x\n", fd, flags);
 
     p = mpp_malloc(allocator_ctx_drm, 1);
