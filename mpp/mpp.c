@@ -38,18 +38,6 @@ static void mpp_notify_by_buffer_group(void *arg, void *group)
 
 static void *list_wraper_packet(void *arg)
 {
-    MppPacket packet = *(MppPacket*)arg;
-
-    if (mpp_packet_has_meta(packet)) {
-        MppMeta meta = mpp_packet_get_meta(packet);
-        MppFrame frm = NULL;
-
-        if (MPP_OK == mpp_meta_get_frame(meta, KEY_INPUT_FRAME, &frm)) {
-            mpp_assert(frm);
-            mpp_frame_deinit(&frm);
-        }
-    }
-
     mpp_packet_deinit((MppPacket *)arg);
     return NULL;
 }
@@ -240,8 +228,10 @@ MPP_RET mpp_ctx_init(Mpp *mpp, MppCtxType type, MppCodingType coding)
         mpp->mInitDone = 1;
     } break;
     case MPP_CTX_ENC : {
+        mpp->mPktIn  = mpp_list_create(list_wraper_packet);
         mpp->mPktOut = mpp_list_create(list_wraper_packet);
-        mpp->mFrmIn = mpp_list_create(list_wraper_frame);
+        mpp->mFrmIn  = mpp_list_create(NULL);
+        mpp->mFrmOut = mpp_list_create(NULL);
 
         if (mpp->mInputTimeout == MPP_POLL_BUTT)
             mpp->mInputTimeout = MPP_POLL_BLOCK;
