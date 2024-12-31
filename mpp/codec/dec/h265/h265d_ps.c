@@ -1511,29 +1511,37 @@ RK_S32 mpp_hevc_decode_nal_sps(HEVCContext *s)
     } break;
     case H265_CHROMA_420 : {
         switch (sps->bit_depth) {
-        case 8:  sps->pix_fmt = MPP_FMT_YUV420SP;   break;
+        case 8:  sps->pix_fmt = MPP_FMT_YUV420SP; break;
         case 10: sps->pix_fmt = MPP_FMT_YUV420SP_10BIT; break;
         default:
-            mpp_err( "Unsupported bit depth: %d\n",
-                     sps->bit_depth);
-            ret =  MPP_ERR_PROTOL;
+            mpp_err("Unsupported bit depth: %d\n",
+                    sps->bit_depth);
+            ret = MPP_ERR_PROTOL;
             goto err;
         }
     } break;
     case H265_CHROMA_422 : {
         switch (sps->bit_depth) {
-        case 8:  sps->pix_fmt = MPP_FMT_YUV422SP;   break;
+        case 8:  sps->pix_fmt = MPP_FMT_YUV422SP; break;
         case 10: sps->pix_fmt = MPP_FMT_YUV422SP_10BIT; break;
         default:
-            mpp_err( "Unsupported bit depth: %d\n",
-                     sps->bit_depth);
-            ret =  MPP_ERR_PROTOL;
+            mpp_err("Unsupported bit depth: %d\n",
+                    sps->bit_depth);
+            ret = MPP_ERR_PROTOL;
             goto err;
         }
         mpp_slots_set_prop(s->slots, SLOTS_LEN_ALIGN, rkv_len_align_422);
     } break;
     case H265_CHROMA_444 : {
-        sps->pix_fmt = MPP_FMT_YUV444SP;
+        switch (sps->bit_depth) {
+        case 8:  sps->pix_fmt = MPP_FMT_YUV444SP; break;
+        case 10: sps->pix_fmt = MPP_FMT_YUV444SP_10BIT; break;
+        default:
+            mpp_err("Unsupported bit depth: %d\n",
+                    sps->bit_depth);
+            ret = MPP_ERR_PROTOL;
+            goto err;
+        }
         mpp_slots_set_prop(s->slots, SLOTS_LEN_ALIGN, rkv_len_align_444);
     } break;
     }
