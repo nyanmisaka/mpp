@@ -19,17 +19,12 @@
 
 void syslog_wrapper_init()
 {
-    int option = LOG_PID;
-    RK_U32 syslog_perror = 1;
-    RK_U32 syslog_cons = 0;
+    int option = LOG_PID | LOG_CONS;
+    RK_U32 syslog_perror = 0;
 
-    os_get_env_u32("mpp_syslog_perror", &syslog_perror, 1);
+    os_get_env_u32("mpp_syslog_perror", &syslog_perror, 0);
     if (syslog_perror)
         option |= LOG_PERROR;
-
-    os_get_env_u32("mpp_syslog_cons", &syslog_cons, 0);
-    if (syslog_cons)
-        option |= LOG_CONS;
 
     openlog("mpp", option, LOG_USER);
 }
