@@ -480,6 +480,7 @@ static void generate_info_set(MppBufSlotsImpl *impl, MppFrame frame, RK_U32 forc
 
     if (impl->align_chk_log_en) {
         impl->align_chk_log_en = 0;
+#if 0
         if (legacy_info_set.h_stride_by_pixel != sys_cfg_info_set.h_stride_by_pixel)
             mpp_logi("mismatch h_stride_by_pixel %d - %d\n",
                      legacy_info_set.h_stride_by_pixel,
@@ -496,6 +497,7 @@ static void generate_info_set(MppBufSlotsImpl *impl, MppFrame frame, RK_U32 forc
             mpp_logi("mismatch size_total %d - %d\n",
                      legacy_info_set.size_total,
                      sys_cfg_info_set.size_total);
+#endif
     }
 }
 
