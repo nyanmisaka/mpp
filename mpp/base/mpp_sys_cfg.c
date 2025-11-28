@@ -233,6 +233,7 @@ MPP_RET mpp_sys_dec_buf_chk_proc(MppSysDecBufChkCfg *cfg)
             aligned_pixel_byte = MPP_ALIGN(aligned_pixel, 64) * depth >> 3;
         sys_cfg_dbg_dec_buf("need 256 odd align: %d\n", *compat_ext_fbc_hdr_256_odd);
 
+#if 0
         switch (type) {
         case MPP_VIDEO_CodingAVC :
         case MPP_VIDEO_CodingAVSPLUS :
@@ -254,6 +255,9 @@ MPP_RET mpp_sys_dec_buf_chk_proc(MppSysDecBufChkCfg *cfg)
         } break;
         }
         sys_cfg_dbg_dec_buf("dec hw aligned hor_byte: [%d]\n", aligned_byte);
+#else
+        aligned_byte = aligned_pixel_byte;
+#endif
 
         cfg->h_stride_by_byte = aligned_byte;
         cfg->h_stride_by_pixel = aligned_pixel;
