@@ -254,7 +254,7 @@ MPP_RET vdpu_av1d_init(void *hal, MppHalCfg *cfg)
         reg_ctx->tile_transpose = 1;
     }
 
-    mpp_slots_set_prop(p_hal->slots, SLOTS_HOR_ALIGN, mpp_align_16);
+    mpp_slots_set_prop(p_hal->slots, SLOTS_HOR_ALIGN, mpp_align_64); // align to 64 for AV1 Main 10bit and RGA3 use case
     mpp_slots_set_prop(p_hal->slots, SLOTS_VER_ALIGN, mpp_align_8);
     mpp_slots_set_prop(p_hal->slots, SLOTS_LEN_ALIGN, mpp_align_wxh2yuv422);
 

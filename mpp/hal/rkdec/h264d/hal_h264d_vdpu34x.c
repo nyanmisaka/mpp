@@ -526,7 +526,7 @@ MPP_RET vdpu34x_h264d_init(void *hal, MppHalCfg *cfg)
     memcpy((char *)reg_ctx->bufs_ptr + reg_ctx->offset_cabac,
            (void *)rkv_cabac_table, sizeof(rkv_cabac_table));
 
-    mpp_slots_set_prop(p_hal->frame_slots, SLOTS_HOR_ALIGN, mpp_align_16);
+    mpp_slots_set_prop(p_hal->frame_slots, SLOTS_HOR_ALIGN, mpp_align_64); // align to 64 for H264 High10 and RGA3 use case
     mpp_slots_set_prop(p_hal->frame_slots, SLOTS_VER_ALIGN, mpp_align_16);
     mpp_slots_set_prop(p_hal->frame_slots, SLOTS_LEN_ALIGN, mpp_align_wxh2yuv422);
 
