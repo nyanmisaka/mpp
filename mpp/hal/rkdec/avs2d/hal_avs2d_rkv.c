@@ -481,7 +481,7 @@ MPP_RET hal_avs2d_rkv_init(void *hal, MppHalCfg *cfg)
     if (MPP_FRAME_FMT_IS_FBC(cfg->cfg->base.out_fmt))
         mpp_slots_set_prop(p_hal->frame_slots, SLOTS_HOR_ALIGN, mpp_align_64);
     else
-        mpp_slots_set_prop(p_hal->frame_slots, SLOTS_HOR_ALIGN, mpp_align_16);
+        mpp_slots_set_prop(p_hal->frame_slots, SLOTS_HOR_ALIGN, mpp_align_64); // align to 64 for AVS2 10bit and RGA3 use case
 
     mpp_slots_set_prop(p_hal->frame_slots, SLOTS_VER_ALIGN, mpp_align_16);
     mpp_slots_set_prop(p_hal->frame_slots, SLOTS_LEN_ALIGN, mpp_align_wxh2yuv422);
