@@ -341,6 +341,13 @@ MPP_RET mpp_sys_dec_buf_chk_proc(MppSysDecBufChkCfg *cfg)
         aligned_height = cfg->v_stride ? cfg->v_stride : aligned_height;
 
         switch (type) {
+        case MPP_VIDEO_CodingAVC :
+        case MPP_VIDEO_CodingAVS2 : {
+            if (soc_type == ROCKCHIP_SOC_RK3588) /* ALIGN_64: for 10bit + RGA3 use case */
+                aligned_byte = mpp_sys_cfg_align(SYS_CFG_ALIGN_64, aligned_pixel_byte);
+            else
+                aligned_byte = mpp_sys_cfg_align(SYS_CFG_ALIGN_16, aligned_pixel_byte);
+        } break;
         case MPP_VIDEO_CodingHEVC : {
             aligned_byte = mpp_sys_cfg_align(SYS_CFG_ALIGN_64, aligned_pixel_byte);
         } break;
@@ -352,8 +359,8 @@ MPP_RET mpp_sys_dec_buf_chk_proc(MppSysDecBufChkCfg *cfg)
                 aligned_byte = mpp_sys_cfg_align(SYS_CFG_ALIGN_256_ODD, aligned_pixel_byte);
         } break;
         case MPP_VIDEO_CodingAV1 : {
-            if (soc_type == ROCKCHIP_SOC_RK3588)
-                aligned_byte = mpp_sys_cfg_align(SYS_CFG_ALIGN_16, aligned_pixel_byte);
+            if (soc_type == ROCKCHIP_SOC_RK3588) /* ALIGN_64: for 10bit + RGA3 use case */
+                aligned_byte = mpp_sys_cfg_align(SYS_CFG_ALIGN_64, aligned_pixel_byte);
             else
                 aligned_byte = mpp_sys_cfg_align(SYS_CFG_ALIGN_128, aligned_pixel_byte);
         } break;
@@ -367,7 +374,7 @@ MPP_RET mpp_sys_dec_buf_chk_proc(MppSysDecBufChkCfg *cfg)
          * NOTE: rk3576 use 128 odd plus 64 for all non jpeg format
          * all the other socs use 256 odd on larger than 1080p
          */
-        if ((aligned_byte > 1920 || soc_type == ROCKCHIP_SOC_RK3576)
+        if (((aligned_byte * 8 / depth) > 1920 || soc_type == ROCKCHIP_SOC_RK3576)
             && type != MPP_VIDEO_CodingMJPEG) {
             rk_s32 update = 0;
 
