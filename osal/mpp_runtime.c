@@ -13,6 +13,7 @@
 #include "mpp_debug.h"
 #include "mpp_common.h"
 #include "mpp_singleton.h"
+#include "mpp_soc.h"
 
 #include "mpp_runtime.h"
 
@@ -90,6 +91,16 @@ static void mpp_rt_srv_init()
                                                      !access("/dev/dma_heap/system-dma32", F_OK | R_OK) &&
                                                      !access("/dev/dma_heap/system-uncached", F_OK | R_OK) &&
                                                      !access("/dev/dma_heap/system-uncached-dma32", F_OK | R_OK);
+
+    /*
+     * RV1126B DDR is mapped within the 32-bit physical address range.
+     * Accept its system heaps when the BSP omits dedicated DMA32 heaps.
+     */
+    if (!srv->allocator_valid[MPP_BUFFER_TYPE_DMA_HEAP] &&
+        mpp_get_soc_type() == ROCKCHIP_SOC_RV1126B &&
+        !access("/dev/dma_heap/system", F_OK | R_OK) &&
+        !access("/dev/dma_heap/system-uncached", F_OK | R_OK))
+        srv->allocator_valid[MPP_BUFFER_TYPE_DMA_HEAP] = 1;
 
     if (!srv->allocator_valid[MPP_BUFFER_TYPE_ION] &&
         !srv->allocator_valid[MPP_BUFFER_TYPE_DRM] &&
